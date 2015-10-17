@@ -1,0 +1,51 @@
+#!/bin/sh
+
+rest() {
+  shift
+  echo $@
+}
+
+owner_get() {
+  path=$1
+
+  if [ -z $path ]; then
+    echo 'usage: owner get <path>'
+    return 2
+  else
+    stat -c %U $path
+  fi
+}
+
+owner_check() {
+  user=$1
+  path=$2
+
+  if [ -z $user ] || [ -z $path ]; then
+    echo 'usage: owner check <user> <path>'
+    return 2
+  else
+    [[ `owner_get $path` = $user ]]
+  fi
+}
+
+owner_set() {
+  user=$1
+  path=$2
+
+  if [ -z $user ] || [ -z $path ]; then
+    echo 'usage: owner set <user> <path>'
+    return 2
+  else
+    owner_check $user $path || chown -R $user $path
+    owner_check $user $path || {
+      echo "failed to set owner of $path to $user"
+      exit 1
+    }
+  fi
+}
+
+if [ -z $1 ] || [ $1 = '-h' ] || [ $1 = '--help' ]; then
+  echo 'usage: owner <get|check|set> [args]'
+else
+  eval owner_$1 $(rest $@)
+fi
