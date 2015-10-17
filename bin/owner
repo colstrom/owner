@@ -38,7 +38,7 @@ owner_set() {
   else
     owner_check $user $path || chown -R $user $path
     owner_check $user $path || {
-      echo 'failed to set owner of $path to $user'
+      echo "failed to set owner of $path to $user"
       exit 1
     }
   fi
